@@ -12,13 +12,14 @@ import sys
 import time
 import os
 from dotenv import load_dotenv
+from utils import get_secret
 
 load_dotenv()
 
 
 def main():
-    api_key = os.getenv("GEMINI_API_KEY")
-    model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+    api_key = get_secret("GEMINI_API_KEY")
+    model_name = get_secret("GEMINI_MODEL", "gemini-1.5-pro")
 
     if not api_key or api_key == "your_google_gemini_api_key_here":
         print("❌  GEMINI_API_KEY is missing or still set to the placeholder value.")

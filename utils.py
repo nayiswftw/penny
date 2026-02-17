@@ -18,9 +18,32 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def get_secret(key: str, default: str = "") -> str:
+    """Retrieve a config value from env vars or Streamlit Cloud secrets.
+
+    Lookup order:
+    1. ``os.environ`` (set by ``.env`` or the host environment)
+    2. ``st.secrets``  (Streamlit Community Cloud)
+    3. *default*
+    """
+    value = os.getenv(key)
+    if value is not None:
+        return value
+
+    try:
+        import streamlit as st  # noqa: delayed import to avoid issues outside Streamlit
+        if key in st.secrets:
+            return str(st.secrets[key])
+    except Exception:
+        pass
+
+    return default
+
+
 # ─── Logging ──────────────────────────────────────────────────────────────────
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+LOG_LEVEL = get_secret("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
     format="%(asctime)s  %(levelname)-8s  %(message)s",
@@ -38,13 +61,13 @@ def load_env_config() -> dict:
     mandatory ``GEMINI_API_KEY`` is missing or set to the placeholder.
     """
     config = {
-        "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY", ""),
-        "GEMINI_MODEL": os.getenv("GEMINI_MODEL", "gemini-1.5-pro"),
-        "GEMINI_MAX_TOKENS": int(os.getenv("GEMINI_MAX_TOKENS", "8192")),
-        "GEMINI_TEMPERATURE": float(os.getenv("GEMINI_TEMPERATURE", "0.3")),
-        "APP_TITLE": os.getenv("APP_TITLE", "AI Financial Advisor"),
-        "APP_ENV": os.getenv("APP_ENV", "development"),
-        "CACHE_TTL_SECONDS": int(os.getenv("CACHE_TTL_SECONDS", "300")),
+        "GEMINI_API_KEY": get_secret("GEMINI_API_KEY"),
+        "GEMINI_MODEL": get_secret("GEMINI_MODEL", "gemini-1.5-pro"),
+        "GEMINI_MAX_TOKENS": int(get_secret("GEMINI_MAX_TOKENS", "8192")),
+        "GEMINI_TEMPERATURE": float(get_secret("GEMINI_TEMPERATURE", "0.3")),
+        "APP_TITLE": get_secret("APP_TITLE", "AI Financial Advisor"),
+        "APP_ENV": get_secret("APP_ENV", "development"),
+        "CACHE_TTL_SECONDS": int(get_secret("CACHE_TTL_SECONDS", "300")),
     }
 
     if not config["GEMINI_API_KEY"] or config["GEMINI_API_KEY"] == "your_google_gemini_api_key_here":
