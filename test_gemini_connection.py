@@ -19,7 +19,7 @@ load_dotenv()
 
 def main():
     api_key = get_secret("GEMINI_API_KEY")
-    model_name = get_secret("GEMINI_MODEL", "gemini-1.5-pro")
+    model_name = get_secret("GEMINI_MODEL", "gemini-2.5-pro")
 
     if not api_key or api_key == "your_google_gemini_api_key_here":
         print("❌  GEMINI_API_KEY is missing or still set to the placeholder value.")
