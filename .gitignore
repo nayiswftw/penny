@@ -1,5 +1,8 @@
 # Environment
 .env
+.env.*
+!.env.example
+!.env.template
 .venv/
 venv/
 env/
@@ -11,6 +14,15 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+*.egg
+
+# Tooling caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+coverage.xml
+.coverage
 
 # Streamlit
 .streamlit/secrets.toml

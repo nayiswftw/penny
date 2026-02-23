@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "penny"
+version = "1.0.0"
+description = "AI-powered personal finance advisor built with Streamlit & Google Gemini"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = [
+    "streamlit>=1.28.0,<2.0",
+    "google-genai>=1.0.0",
+    "pandas>=1.5.0,<3.0",
+    "plotly>=5.18.0,<6.0",
+    "numpy>=1.24.0,<3.0",
+    "python-dotenv>=1.0.0,<2.0",
+    "requests>=2.31.0,<3.0",
+    "pydantic>=2.0.0,<3.0",
+    "pydantic-settings>=2.0.0,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.4.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.6.0",
+    "pandas-stubs>=1.5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ── Ruff (linter + formatter) ────────────────────────────────────────────────
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "RUF",    # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults (needed for Pydantic Field)
+    "SIM108", # use ternary operator (readability preference)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["penny"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ── Mypy ──────────────────────────────────────────────────────────────────────
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "streamlit.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "plotly.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "google.*"
+ignore_missing_imports = true
+
+# ── Pytest ────────────────────────────────────────────────────────────────────
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["penny"]
+omit = ["tests/*", "*/views/*"]
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "if TYPE_CHECKING:",
+]

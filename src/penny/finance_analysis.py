@@ -10,15 +10,14 @@ from __future__ import annotations
 import math
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
-from utils import format_currency, format_percentage
-
+from penny.utils.formatting import format_currency, format_percentage
 
 # ─── Budget ───────────────────────────────────────────────────────────────────
 
-def calculate_budget_breakdown(income: float, expenses: dict[str, float]) -> dict:
+
+def calculate_budget_breakdown(income: float, expenses: dict[str, float]) -> dict[str, Any]:
     """Compute discretionary income, savings potential, and per-category ratios.
 
     Parameters
@@ -53,8 +52,9 @@ def calculate_budget_breakdown(income: float, expenses: dict[str, float]) -> dic
 
 # ─── Savings ──────────────────────────────────────────────────────────────────
 
-def analyze_savings_rate(income: float, savings: float) -> dict:
-    """Return savings-rate metrics and benchmark against the 20 % rule.
+
+def analyze_savings_rate(income: float, savings: float) -> dict[str, Any]:
+    """Return savings-rate metrics and benchmark against the 20% rule.
 
     Parameters
     ----------
@@ -87,6 +87,7 @@ def analyze_savings_rate(income: float, savings: float) -> dict:
 
 # ─── Debt ─────────────────────────────────────────────────────────────────────
 
+
 def _payoff_months(balance: float, rate_annual: float, payment: float) -> int:
     """Estimate months to pay off a single debt at *payment* per month."""
     if payment <= 0 or balance <= 0:
@@ -102,7 +103,7 @@ def _payoff_months(balance: float, rate_annual: float, payment: float) -> int:
     return min(months, 999)
 
 
-def compute_debt_metrics(debts: list[dict], income: float) -> dict:
+def compute_debt_metrics(debts: list[dict], income: float) -> dict[str, Any]:
     """Calculate DTI ratio, total burden, and payoff timelines.
 
     Each debt dict must contain: name, balance, interest_rate, min_payment.
@@ -139,10 +140,14 @@ def compute_debt_metrics(debts: list[dict], income: float) -> dict:
         })
 
     # Build a monthly timeline for chart consumption
-    timeline: list[dict] = []
+    timeline: list[dict[str, Any]] = []
     sim_debts = [
-        {"name": d["name"], "balance": float(d["balance"]),
-         "rate_m": d["interest_rate"] / 100 / 12, "payment": float(d["min_payment"])}
+        {
+            "name": d["name"],
+            "balance": float(d["balance"]),
+            "rate_m": d["interest_rate"] / 100 / 12,
+            "payment": float(d["min_payment"]),
+        }
         for d in sorted_debts
     ]
     for month in range(1, 361):  # up to 30 years
@@ -170,6 +175,7 @@ def compute_debt_metrics(debts: list[dict], income: float) -> dict:
 
 # ─── Investment Projection ────────────────────────────────────────────────────
 
+
 def project_investment_growth(
     principal: float,
     annual_rate: float,
@@ -183,7 +189,7 @@ def project_investment_growth(
     principal : float
         Starting investment value.
     annual_rate : float
-        Expected annual return as a percentage (e.g. 8 for 8 %).
+        Expected annual return as a percentage (e.g. 8 for 8%).
     years : int
         Investment time horizon in years.
     monthly_contribution : float
@@ -215,15 +221,16 @@ def project_investment_growth(
 
 # ─── Health Score ─────────────────────────────────────────────────────────────
 
+
 def score_financial_health(metrics: dict) -> int:
     """Generate a composite Financial Health Score from 0 to 100.
 
     Weighted breakdown
     ------------------
-    - Savings rate   : 30 %
-    - Debt-to-income : 25 %
-    - Budget surplus : 25 %
-    - Investment     : 20 %
+    - Savings rate   : 30%
+    - Debt-to-income : 25%
+    - Budget surplus : 25%
+    - Investment     : 20%
     """
     score = 0.0
 
@@ -248,10 +255,11 @@ def score_financial_health(metrics: dict) -> int:
     if has_investments:
         score += 20
 
-    return max(0, min(100, int(round(score))))
+    return max(0, min(100, round(score)))
 
 
 # ─── Summary Report ──────────────────────────────────────────────────────────
+
 
 def generate_summary_report(
     budget: dict,
@@ -259,7 +267,7 @@ def generate_summary_report(
     debt: dict,
     investment_df: pd.DataFrame | None,
     health_score: int,
-) -> dict:
+) -> dict[str, Any]:
     """Produce a structured dictionary consumed by the AI advisor and viz layer."""
     report: dict[str, Any] = {
         "monthly_income_surplus": budget.get("surplus", 0),
